@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform:
+          - amd64
+          - 386
+        os:
+          - linux
+          - windows
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Go
+        uses: actions/setup-go@v5.0.0
+        with:
+          go-version: '1.21'
+
+      - name: Build
+        run: |
+          #export CGO_ENABLED=1
+          export GOOS=${{ matrix.os }}
+          export GOARCH=${{ matrix.platform }}
+          go build -o vss-${{ matrix.os }}-${{ matrix.platform }} -v main.go
+          
+      - name: Upload
+        uses: svenstaro/upload-release-action@2.7.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          file: vss-*
+          prerelease: true
+          overwrite: true

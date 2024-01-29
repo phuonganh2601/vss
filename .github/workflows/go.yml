@@ -28,7 +28,7 @@ jobs:
 
       - name: Build
         run: |
-          #export CGO_ENABLED=1
+          go mod tidy
           export GOOS=${{ matrix.os }}
           export GOARCH=${{ matrix.platform }}
           go build -o vss-${{ matrix.os }}-${{ matrix.platform }} -v main.go
@@ -38,6 +38,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}
-          file: vss-*
+          file: vss-${{ matrix.os }}-${{ matrix.platform }}
           prerelease: true
           overwrite: true
